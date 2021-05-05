@@ -1,22 +1,44 @@
 const express = require('express');
 const cors = require('cors');
-const dotenv = require("dotenv");
+const dotenv = require("dotenv").config();
+const mongoose = require('mongoose');
+const fileUpload = require('express-fileupload');
+const errorMiddleware = require('./middleware/error')
+const manufacturer = require('./router/manufacturer');
+const phone = require('./router/phone');
 
 const app = express();
 
 
-dotenv.config({ path: "./config.config.env" });
 
 //middleware 
-app.use(cors());
 app.use(express.json());
+
+app.use(fileUpload());
+
+
+app.use(cors());
+app.use((req, res, next) => {
+  console.log('req received' + req.body)
+  next();
+})
+
+app.use('/api', manufacturer);
+app.use('/api', phone);
+
+//handle unhandled routes
+app.all("*", (req, res, next) => {
+  next(new ErrorHandler(`${req.originalUrl} route NOT FOUND`, 404));
+});
+
+//middleware to handle errors
+app.use(errorMiddleware);
 
 
 //connect to the database
-
 const connectDatabase = () => {
   mongoose
-    .connect(process.env.DB_LOCAL_URL, {
+    .connect('mongodb://localhost:27017/mydbname', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
@@ -28,9 +50,9 @@ const connectDatabase = () => {
     });
 };
 connectDatabase();
-
-app.listen(process.env.PORT, () => {
-  console.log(`Server started on port 8000 ${process.env.PORT}`);
+const port = 8000;
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
 })
 
 //handling unhandled Promise Rejection

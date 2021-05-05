@@ -6,6 +6,7 @@ const phoneSchema = new mongoose.Schema({
     type: String,
     required: [true, "Name is required"],
     trim: true,
+    unique: true,
     maxlength: [100, 'name cannot exceed 100 chararcter']
   },
   manufacturer: {
@@ -37,15 +38,15 @@ const phoneSchema = new mongoose.Schema({
     type: String,
     required: [true, "screen detail is required"]
   },
-  procesor: {
+  processor: {
     type: String,
     required: [true, "processor detail is required"]
   },
   ram: {
-    type: Number,
+    type: String,
     required: true,
     enum: {
-      values: [2, 4, 6, 8, 16],
+      values: ['2', '4', '6', '8', '16'],
       message: ['Please select correct ram detail']
     }
   },
